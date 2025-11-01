@@ -35,3 +35,5 @@ notification = Notification(user_id='254', message='Hello beginner', send_at='20
 schedule_254 = Scheduler()
 schedule_254.schedule(notification)
 print(schedule_254.send_notification())
+
+new_feature = 'text'
