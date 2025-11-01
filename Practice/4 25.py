@@ -36,4 +36,4 @@ schedule_254 = Scheduler()
 schedule_254.schedule(notification)
 print(schedule_254.send_notification())
 
-new_feature = 'another text'
+new_feature = 'final text'
