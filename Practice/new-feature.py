@@ -1,4 +1,4 @@
-my_code = 'code snippet'
+my_code = 'code snippet ++'
 def new_feature():
     return my_code
 
