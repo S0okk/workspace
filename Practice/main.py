@@ -1,90 +1,61 @@
-from fastapi import FastAPI, HTTPException
-import uvicorn
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
-
+from typing import Annotated
+from fastapi import FastAPI, Depends
+from pydantic import BaseModel
+from requests import session
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import Column, Integer, String, select
 
 app = FastAPI()
 
+engine = create_async_engine('sqlite+aiosqlite:///books.db')
 
-books = [
-    {
-        "id": 1,
-        "title": "1984",
-        "author": "George Orwell"
-    },
-    {
-        "id": 2,
-        "title": "To Kill a Mockingbird",
-        "author": "Harper Lee"
-    }
-]
+new_session = async_sessionmaker(engine, expire_on_commit=False)
 
-users = [
-    {
-        "id": 1,
-        "email": "abc@gmail.com",
-        "bio": None,
-        "age": 11
-    }
-]
+async def get_session():
+    async with new_session() as sessionDp:
+        yield sessionDp
 
+class Base(DeclarativeBase):
+    pass
 
-class NewBook(BaseModel):
+class BookModel(Base):
+    __tablename__ = 'books'
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    author = Column(String, index=True)
+
+class BookAddSchema(BaseModel):
+    title: str
+    author: str
+
+class BookSchema(BookAddSchema):
     id: int
-    title: str = Field(max_length=50)
-    author: str = Field(max_length=30)
-    
-    model_config = ConfigDict(extra='forbid')
-
-class UserSchema(BaseModel):
-    id: int
-    email: EmailStr
-    bio: str | None = Field(max_length=1000)
-    
-    model_config = ConfigDict(extra='forbid')
-
-class UserAgeSchema(UserSchema):
-    age: int = Field(ge=0, lt=130)
-    
-    model_config = ConfigDict(extra='forbid')
 
 
-@app.get("/users/", tags=["Users"], response_model=list[UserAgeSchema])
-def read_users():
-    return users
+@app.post("/setup-database")
+async def setup_database():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
+    return {"message": "Database setup complete."}
 
-@app.post("/users/", tags=["Users"])
-def add_user(user: UserAgeSchema):
-    users.append(
-        {
-        "id": len(users) + 1,
-        "email": user.email,
-        "bio": user.bio,
-        "age": user.age
-        }
-    )
-    return {'success': True, 'message': 'User added successfully'}
+SessionDependency = Annotated[AsyncSession, Depends(get_session)]
 
 
-@app.get("/books/", tags=["Books"], response_model=list[NewBook])
-def read_books():
-    return books
+@app.post("/books/")
+async def add_book(data: BookAddSchema, sessionDp: SessionDependency):
+    new_book = BookModel(
+        title=data.title, 
+        author=data.author
+        )
+    sessionDp.add(new_book)
+    await sessionDp.commit()
+    return {"Success": True}
 
-@app.get("/books/{book_id}", tags=["Books"])
-def get_book(book_id: int):
-    for book in books:
-        if book["id"] == book_id:
-            return book
-    raise HTTPException(status_code=404, detail="Book not found")
-
-@app.post("/books/", tags=["Books"])
-def create_book(book: NewBook):
-    books.append({
-        "id": len(books) + 1,
-        "title": book.title,
-        "author": book.author
-    })
-    return {'success': True, 'message': 'Book added successfully'}
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", reload=True)
+@app.get("/books/", response_model=list[BookSchema])
+async def get_book(sessionDp: SessionDependency):
+    query = select(BookModel)
+    result = await sessionDp.execute(query)
+    return result.scalars().all()
