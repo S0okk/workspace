@@ -33,17 +33,23 @@ class BookSchema(BookAddSchema):
     id: int
 
 
-@app.post("/setup-database")
+@app.post("/setup-database", tags=["Database"])
 async def setup_database():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     return {"message": "Database setup complete."}
 
+@app.delete("/teardown-database", tags=["Database"])
+async def teardown_database():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    return {"message": "Database teardown complete."}
+
 SessionDependency = Annotated[AsyncSession, Depends(get_session)]
 
 
-@app.post("/books/")
+@app.post("/books/", tags=["Books"])
 async def add_book(data: BookAddSchema, sessionDp: SessionDependency):
     new_book = BookModel(
         title=data.title, 
@@ -53,7 +59,7 @@ async def add_book(data: BookAddSchema, sessionDp: SessionDependency):
     await sessionDp.commit()
     return {"Success": True}
 
-@app.get("/books/", response_model=list[BookSchema])
+@app.get("/books/", response_model=list[BookSchema], tags=["Books"])
 async def get_book(sessionDp: SessionDependency):
     query = select(BookModel)
     result = await sessionDp.execute(query)
