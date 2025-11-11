@@ -31,26 +31,45 @@ class BookAddSchema(BaseModel):
 
 class BookSchema(BookAddSchema):
     id: int
+    
+    class Config:
+        from_attributes = True
 
 
+<<<<<<< HEAD
 @app.post("/setup-database", tags=["Database"])
+=======
+@app.post("/setup-database", tags=["Database 🗃️"], description="This endpoint creates a new setup for database")
+>>>>>>> refs/remotes/origin/main
 async def setup_database():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     return {"message": "Database setup complete."}
 
+<<<<<<< HEAD
 @app.delete("/teardown-database", tags=["Database"])
 async def teardown_database():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     return {"message": "Database teardown complete."}
+=======
+@app.delete("/drop-database", tags=["Database 🗃️"], description="This endpoint drops a database")
+async def drop_database():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    return {"message": "Database was dropped successfully."}
+>>>>>>> refs/remotes/origin/main
 
 SessionDependency = Annotated[AsyncSession, Depends(get_session)]
 
 
+<<<<<<< HEAD
+@app.post("/books/", tags=["Books"])
+=======
 @app.post("/books/", tags=["Books 📚"], description="This endpoint adds a book in the database")
-async def add_book(data: BookAddSchema, session: SessionDependency):
+>>>>>>> refs/remotes/origin/main
+async def add_book(data: BookAddSchema, sessionDp: SessionDependency):
     new_book = BookModel(
         title=data.title, 
         author=data.author
@@ -59,32 +78,34 @@ async def add_book(data: BookAddSchema, session: SessionDependency):
     await session.commit()
     return {"Success": True}
 
-@app.get("/books/", response_model=list[BookSchema], tags=["Books 📚"], description="This endpoint shows all books in the database")
-async def show_books(session: SessionDependency):
+<<<<<<< HEAD
+@app.get("/books/", response_model=list[BookSchema], tags=["Books"])
+async def get_book(sessionDp: SessionDependency):
     query = select(BookModel)
-    result = await session.execute(query)
+    result = await sessionDp.execute(query)
+    return result.scalars().all()
+=======
+@app.get("/books/", response_model=list[BookSchema], tags=["Books 📚"], description="This endpoint shows all books in the database")
+async def show_books(sessionDp: SessionDependency):
+    query = select(BookModel)
+    result = await sessionDp.execute(query)
     return result.scalars().all()
 
 @app.get("/books/{book_id}", response_model=BookSchema, tags=["Books 📚"], description="This endpoint finds a book in the database")
-async def get_book(book_id: int, session: SessionDependency):
+async def get_book(book_id: int, sessionDp: SessionDependency):
     query = select(BookModel).where(BookModel.id == book_id)
-    result = await session.execute(query)
+    result = await sessionDp.execute(query)
     return result.scalars().first()
 
 @app.put("/books/{book_id}", tags=["Books 📚"], description="This endpoint updates a book in the database")
-async def update_book(data: BookAddSchema, book_id: int, session: SessionDependency):
+async def update_book(data: BookAddSchema, book_id: int, sessionDp: SessionDependency):
+    from sqlalchemy import update
     result = (
         update(BookModel)
         .where(BookModel.id == book_id)
         .values(title=data.title, author=data.author)
     )
-    await session.execute(result)
-    await session.commit()
+    await sessionDp.execute(result)
+    await sessionDp.commit()
     return {"Success": True}
-
-@app.delete("/books/", response_model=BookSchema, tags=["Books 📚"], description="This endpoint deletes a book in the database")
-async def delete_book(book_id: int, session: SessionDependency):
-    query = select(BookModel).where(BookModel.id == book_id)
-    await session.delete(query)
-    await session.commit()
-    return {"Success": True}
+>>>>>>> refs/remotes/origin/main
