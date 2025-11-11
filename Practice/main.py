@@ -84,8 +84,4 @@ async def update_book(data: BookAddSchema, book_id: int, sessionDp: SessionDepen
     )
     await sessionDp.execute(result)
     await sessionDp.commit()
-<<<<<<< HEAD
     return {"Success": True}
-=======
-    return {"Success": True}
->>>>>>> 8d372d1d6e173e0fcb52432872153f483b19856a
