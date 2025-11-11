@@ -53,7 +53,11 @@ SessionDependency = Annotated[AsyncSession, Depends(get_session)]
 
 
 @app.post("/books/", tags=["Books 📚"], description="This endpoint adds a book in the database")
+<<<<<<< HEAD
 async def add_book(data: BookAddSchema, session: SessionDependency):
+=======
+async def add_book(data: BookAddSchema, sessionDp: SessionDependency):
+>>>>>>> 31dccd9 (updated)
     new_book = BookModel(
         title=data.title, 
         author=data.author
