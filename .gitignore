@@ -1,0 +1,40 @@
+# Виртуальные окружения
+venv/
+.env/
+ENV/
+env/
+.venv/
+
+# Кэш Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Настройки IDE
+.vscode/
+.idea/
+*.swp
+
+# macOS системные файлы
+.DS_Store
+
+# Логи
+*.log
+
+# Скомпилированные файлы и билды
+build/
+dist/
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# Файлы окружения
+.env.local
+.env.development
+.env.production
+
+# Jupyter / VSCode
+.ipynb_checkpoints/
+.history/
+.python-version
