@@ -12,8 +12,8 @@ engine = create_async_engine('sqlite+aiosqlite:///books.db')
 new_session = async_sessionmaker(engine, expire_on_commit=False)
 
 async def get_session():
-    async with new_session() as sessionDp:
-        yield sessionDp
+    async with new_session() as session:
+        yield session
 
 class Base(DeclarativeBase):
     pass
@@ -53,35 +53,35 @@ SessionDependency = Annotated[AsyncSession, Depends(get_session)]
 
 
 @app.post("/books/", tags=["Books 📚"], description="This endpoint adds a book in the database")
-async def add_book(data: BookAddSchema, sessionDp: SessionDependency):
+async def add_book(data: BookAddSchema, session: SessionDependency):
     new_book = BookModel(
         title=data.title, 
         author=data.author
         )
-    sessionDp.add(new_book)
-    await sessionDp.commit()
+    session.add(new_book)
+    await session.commit()
     return {"Success": True}
 
 @app.get("/books/", response_model=list[BookSchema], tags=["Books 📚"], description="This endpoint shows all books in the database")
-async def show_books(sessionDp: SessionDependency):
+async def show_books(session: SessionDependency):
     query = select(BookModel)
-    result = await sessionDp.execute(query)
+    result = await session.execute(query)
     return result.scalars().all()
 
 @app.get("/books/{book_id}", response_model=BookSchema, tags=["Books 📚"], description="This endpoint finds a book in the database")
-async def get_book(book_id: int, sessionDp: SessionDependency):
+async def get_book(book_id: int, session: SessionDependency):
     query = select(BookModel).where(BookModel.id == book_id)
-    result = await sessionDp.execute(query)
+    result = await session.execute(query)
     return result.scalars().first()
 
 @app.put("/books/{book_id}", tags=["Books 📚"], description="This endpoint updates a book in the database")
-async def update_book(data: BookAddSchema, book_id: int, sessionDp: SessionDependency):
+async def update_book(data: BookAddSchema, book_id: int, session: SessionDependency):
     from sqlalchemy import update
     result = (
         update(BookModel)
         .where(BookModel.id == book_id)
         .values(title=data.title, author=data.author)
     )
-    await sessionDp.execute(result)
-    await sessionDp.commit()
+    await session.execute(result)
+    await session.commit()
     return {"Success": True}
