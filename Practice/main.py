@@ -5,19 +5,25 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, Asyn
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import Column, Integer, String, select, update
 
+# FastAPI app initialization
 app = FastAPI()
 
+# Database setup
 engine = create_async_engine('sqlite+aiosqlite:///books.db')
 
+# Session maker
 new_session = async_sessionmaker(engine, expire_on_commit=False)
 
+# Dependency to get DB session
 async def get_session():
     async with new_session() as session:
         yield session
 
+# Base class for models
 class Base(DeclarativeBase):
     pass
 
+# Book model
 class BookModel(Base):
     __tablename__ = 'books'
 
@@ -25,15 +31,13 @@ class BookModel(Base):
     title = Column(String, index=True)
     author = Column(String, index=True)
 
+# Pydantic schemas
 class BookAddSchema(BaseModel):
     title: str
     author: str
 
 class BookSchema(BookAddSchema):
     id: int
-    
-    class Config:
-        from_attributes = True
 
 
 @app.post("/setup-database", tags=["Database 🗃️"], description="This endpoint creates a new setup for database")
@@ -85,3 +89,13 @@ async def update_book(data: BookAddSchema, book_id: int, session: SessionDepende
     await session.execute(result)
     await session.commit()
     return {"Success": True}
+
+
+@app.delete("/books/{book_id}", tags=["Books 📚"], description="This endpoint deletes a book from the database")
+async def delete_book(book_id: int, session: SessionDependency):
+    book = await session.get(BookModel, book_id)
+    if book:
+        await session.delete(book)
+        await session.commit()
+        return {"Success": True}
+    return {"Success": False, "Message": "Book not found"}
