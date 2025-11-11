@@ -31,23 +31,20 @@ class BookAddSchema(BaseModel):
 
 class BookSchema(BookAddSchema):
     id: int
-    
-    class Config:
-        from_attributes = True
 
 
-@app.post("/setup-database", tags=["Database 🗃️"], description="This endpoint creates a new setup for database")
+@app.post("/setup-database", tags=["Database"])
 async def setup_database():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     return {"message": "Database setup complete."}
 
-@app.delete("/drop-database", tags=["Database 🗃️"], description="This endpoint drops a database")
-async def drop_database():
+@app.delete("/teardown-database", tags=["Database"])
+async def teardown_database():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-    return {"message": "Database was dropped successfully."}
+    return {"message": "Database teardown complete."}
 
 SessionDependency = Annotated[AsyncSession, Depends(get_session)]
 
