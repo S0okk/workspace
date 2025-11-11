@@ -1,2 +1,15 @@
 .__pycache__/
 .venv/
+*.db
+*.sqlite3
+.DS_Store
+.idea/
+.vscode/
+*.log
+.env
+*.pyc
+__pycache__/
+*.tmp
+*.class
+*.jar
+*.logs
