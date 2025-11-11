@@ -38,3 +38,6 @@ dist/
 .ipynb_checkpoints/
 .history/
 .python-version
+
+# SQLite базы данных
+*.db
