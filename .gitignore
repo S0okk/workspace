@@ -6,7 +6,7 @@ env/
 .venv/
 
 # Кэш Python
-Practice/__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 
@@ -41,3 +41,5 @@ dist/
 
 # SQLite базы данных
 *.db
+Practice/__pycache__/
+Practice/__pycache__/
