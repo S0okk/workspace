@@ -6,7 +6,7 @@ env/
 .venv/
 
 # Кэш Python
-__pycache__/
+Practice/__pycache__/
 *.py[cod]
 *$py.class
 

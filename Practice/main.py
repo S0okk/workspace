@@ -36,10 +36,11 @@ class BookAddSchema(BaseModel):
     title: str
     author: str
 
+
 class BookSchema(BookAddSchema):
     id: int
 
-
+# Database management endpoints
 @app.post("/setup-database", tags=["Database 🗃️"], description="This endpoint creates a new setup for database")
 async def setup_database():
     async with engine.begin() as conn:
@@ -47,15 +48,19 @@ async def setup_database():
         await conn.run_sync(Base.metadata.create_all)
     return {"message": "Database setup complete."}
 
+
 @app.delete("/drop-database", tags=["Database 🗃️"], description="This endpoint drops a database")
 async def drop_database():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     return {"message": "Database was dropped successfully."}
 
+
+# Type alias for session dependency
 SessionDependency = Annotated[AsyncSession, Depends(get_session)]
 
 
+# Book management endpoints
 @app.post("/books/", tags=["Books 📚"], description="This endpoint adds a book in the database")
 async def add_book(data: BookAddSchema, session: SessionDependency):
     new_book = BookModel(
@@ -66,17 +71,20 @@ async def add_book(data: BookAddSchema, session: SessionDependency):
     await session.commit()
     return {"Success": True}
 
+
 @app.get("/books/", response_model=list[BookSchema], tags=["Books 📚"], description="This endpoint shows all books in the database")
 async def show_books(session: SessionDependency):
     query = select(BookModel)
     result = await session.execute(query)
     return result.scalars().all()
 
+
 @app.get("/books/{book_id}", response_model=BookSchema, tags=["Books 📚"], description="This endpoint finds a book in the database")
 async def get_book(book_id: int, session: SessionDependency):
     query = select(BookModel).where(BookModel.id == book_id)
     result = await session.execute(query)
     return result.scalars().first()
+
 
 @app.put("/books/{book_id}", tags=["Books 📚"], description="This endpoint updates a book in the database")
 async def update_book(data: BookAddSchema, book_id: int, session: SessionDependency):
@@ -99,3 +107,9 @@ async def delete_book(book_id: int, session: SessionDependency):
         await session.commit()
         return {"Success": True}
     return {"Success": False, "Message": "Book not found"}
+
+
+# Root endpoint
+@app.get("/",tags=["Root"], description="This endpoint is a root")
+def root():
+    return {"Success": True, "Message": "Root"}
