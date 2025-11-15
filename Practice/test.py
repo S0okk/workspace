@@ -1,22 +1,66 @@
-def generate_statistics(list_with_nums: list) -> dict:
+# def binary_search(a, target):
+#     left, right = 0, len(a) - 1
+#     while left <= right:
+#         mid = (left + right) // 2
+#         if a[mid] == target:
+#             return mid
+#         elif a[mid] < target:
+#             left = mid + 1
+#         else:
+#             right = mid - 1
+#     return -1
+# print(binary_search([1, 2, 3, 4, 5], 1))
 
-    sorted_nums = sorted(list_with_nums)
+# import heapq
+# a = [3, 1, 4, 1, 5]
+# heapq.heapify(a) # превратить список в кучy
+# heapq.heappush(a, 2) # добавить
+# smallest = heapq.heappop(a)
+# heapq.heappop(a)# извлечь минимальный
 
-    n = len(sorted_nums)
+# def k_smallest(arr, k):
+#     heapq.heapify(arr)
+#     for i in range(len(arr) - 1):
+#         if heapq.heappop(arr) == k:
+#             return i
+# a = [3, 1, 4, 1, 5, 9, 2, 6, 5]
+# heapq.heapify(a)
+# print(a)
+# print(k_smallest(a, 5))
 
-    if n % 2 != 0:
-        median = sorted_nums[n // 2]
-    else:
-        median = (sorted_nums[n // 2 - 1] + sorted_nums[n // 2]) / 2
+# def is_almost_sorted(a, k):
+#     n = len(a)
+#     tmp = a.copy()
+#     heapq.heapify(tmp)
+#     for i in range(n - 1):
+#         if a[i] - heapq.heappop(tmp) > k:
+#             return False
+#     return True
 
-    mean = sum(sorted_nums) / n
-    standard_deviation = (sum((x - mean) ** 2 for x in sorted_nums) / n )** 0.5
+class Typed:
+    def __init__(self, name, typ):
+        self.name = name
+        self.typ = typ
 
-    return {
-        'mean': mean,
-        'median': median,
-        'standard_deviation': standard_deviation
-    }
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        return instance.__dict__[self.name]
 
-stats = generate_statistics([1, 2, 3, 4, 5])
-print(stats)
+    def __set__(self, instance, value):
+        if not isinstance(value, self.typ):
+            raise TypeError(f"{self.name} must be {self.typ}")
+        instance.__dict__[self.name] = value
+
+class Person:
+    age = Typed("age", int)
+    def __init__(self, age):
+        self.age = age
+    
+    def show_age(self):
+        return self.age
+
+p = Person(30)
+p.age = 31
+print(p.show_age())
+# p.age = "30"  # TypeError
