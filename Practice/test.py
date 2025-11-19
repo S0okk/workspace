@@ -52,15 +52,88 @@ class Typed:
             raise TypeError(f"{self.name} must be {self.typ}")
         instance.__dict__[self.name] = value
 
-class Person:
-    age = Typed("age", int)
-    def __init__(self, age):
-        self.age = age
+# class Person:
+#     age = Typed("age", int)
+#     def __init__(self, age):
+#         self.age = age
     
-    def show_age(self):
-        return self.age
+#     def show_age(self):
+#         return self.age
 
-p = Person(30)
-p.age = 31
-print(p.show_age())
+# p = Person(10)
+# p.age = 31
+# print(p.show_age())
 # p.age = "30"  # TypeError
+
+class Person:
+    def __init__(self, name: str):
+        self._name = name
+
+    @property
+    def name(self) -> str:
+        # getter: может форматировать/отдавать копию
+        return self._name.capitalize()
+
+    @name.setter
+    def name(self, value: str) -> None:
+        if not value or not value.strip():
+            raise ValueError("name must be non-empty")
+        self._name = value.strip()
+
+    @name.deleter
+    def name(self):
+        raise AttributeError("can't delete name")
+
+p = Person(" alice ")
+# print(p.name)  # "Alice"
+p.name = " frank    "
+# del p.name # AttributeError
+# print(p.name)
+
+from functools import cached_property  # noqa: E402
+
+class DataLoader:
+    @cached_property
+    def expensive(self):
+        print("compute once")
+        return sum(range(100_000_000))
+
+d = DataLoader()
+# print(d.expensive)  # compute printed once
+# print(d.expensive)  # cached
+
+
+from dataclasses import dataclass  # noqa: E402
+
+@dataclass
+class Point:
+    x: float
+    y: float
+
+p = Point(1.0, 2.0)
+# print(p)  # Point(x=1.0, y=2.0)
+
+@dataclass
+class Rect:
+    width: float
+    height: float
+
+    @property
+    def area(self) -> float:
+        return self.width * self.height
+
+r = Rect(3.0, 4.0)
+# print(r.area)  # 12.0
+
+from dataclasses import dataclass  # noqa: E402
+
+@dataclass(frozen=True)
+class ID:
+    id_str: str
+    cleaned: str = None
+
+    def __post_init__(self):
+        object.__setattr__(self, "cleaned", self.id_str.strip())
+
+id1 = ID("  ABC123  ")
+print(id1.cleaned)  # "ABC123"
