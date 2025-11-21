@@ -1,12 +1,14 @@
-import unittest
+def func(*, digit_list: list, param: int) -> dict:
+    if digit_list is None:
+        digit_list = []
+    new_param = param + 10
+    digit_list.append(new_param)
+    for_return = {
+        105: digit_list,
+        "304": 304,
+        (1, 2, tuple(digit_list)): "tuple"
+    }
+    return for_return
 
-class TestSum(unittest.TestCase):
-    
-    def test_sum(self):
-        self.assertEqual(sum([1,2,3]), 6, 'Should be 6')
-    
-    def test_sum_tuple(self):
-        self.assertEqual(sum((1,2,3)), 6, 'Should be 6')
-
-if __name__ == '__main__':
-    unittest.main()
+f = func(digit_list=[1], param=2)
+print(f)
