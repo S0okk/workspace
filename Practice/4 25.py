@@ -30,7 +30,7 @@ class Scheduler:
         conn = psycopg2.connect(**self.db_config)
         cur = conn.cursor()
 
-        sql = """
+        sql = """ 
             INSERT INTO scheduled_notifications (user_id, message, send_at, status)
             VALUES (%s, %s, %s, %s)
         """
