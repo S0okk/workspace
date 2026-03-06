@@ -1,5 +1,5 @@
-from fastapi import FastAPI, HTTPException, Response, Depends
 from authx import AuthX, AuthXConfig
+from fastapi import Depends, FastAPI, HTTPException, Response
 from pydantic import BaseModel
 
 app = FastAPI()
@@ -10,6 +10,7 @@ config.JWT_ACCESS_COOKIE_NAME = "my_access_token"
 config.JWT_TOKEN_LOCATION = ["cookies"]
 
 security = AuthX(config)
+
 
 class UserLoginSchema(BaseModel):
     username: str
@@ -23,6 +24,7 @@ async def login(creds: UserLoginSchema, response: Response):
         response.set_cookie(config.JWT_ACCESS_COOKIE_NAME, token)
         return {"access_token": token}
     return HTTPException(status_code=401, detail="Invalid credentials")
+
 
 @app.get("/protected", dependencies=[Depends(security.access_token_required)])
 async def protected():

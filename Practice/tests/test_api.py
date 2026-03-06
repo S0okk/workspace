@@ -1,18 +1,26 @@
 import pytest
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 
 from ..main import app
 
+
 @pytest.mark.asyncio
 async def test_show_books():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
         response = await ac.get("/books/")
         assert response.status_code == 200
 
+
 @pytest.mark.asyncio
 async def test_post_books():
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-        response = await ac.post("/books/", json={"title": "Test Book", "author": "Test Author"})
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as ac:
+        response = await ac.post(
+            "/books/", json={"title": "Test Book", "author": "Test Author"}
+        )
         data = response.json()
         assert response.status_code == 200
         assert data == {"Success": True}

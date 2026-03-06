@@ -1,6 +1,7 @@
 import time
 from threading import Thread
 
+
 def clock(delay):
     time.sleep(delay)
 
@@ -15,6 +16,5 @@ if __name__ == "__main__":
     for thread in threads:
         thread.join()
 
-    
-    print(f'Time end: {time.strftime('%X')}')
-    print(f' ======= Total time: {time.time() - start:0.2f} ======= ')
+    print(f"Time end: {time.strftime('%X')}")
+    print(f" ======= Total time: {time.time() - start:0.2f} ======= ")

@@ -6,19 +6,22 @@ def cacheable(func):
 class CacheMixin:
     def __init__(self):
         self._cache = {}
-        
+
     def __getattribute__(self, name):
         attr = super().__getattribute__(name)
-        
-        if callable(attr) and getattr(attr, '_is_cacheable', False):
+
+        if callable(attr) and getattr(attr, "_is_cacheable", False):
+
             def wrapper(*args):
                 if args in self._cache:
                     return self._cache[args]
                 result = attr(*args)
                 self._cache[args] = result
                 return result
+
             return wrapper
         return attr
+
 
 class MathOps(CacheMixin):
     def __init__(self):
@@ -29,28 +32,33 @@ class MathOps(CacheMixin):
         if n <= 1:
             return n
         return self.fib(n - 1) + self.fib(n - 2)
-    
+
     def non_cached_fib(self, n):
         if n <= 1:
             return n
         return self.non_cached_fib(n - 1) + self.non_cached_fib(n - 2)
 
+
 m = MathOps()
-print(m.fib(50)) # very fast
-print(m.non_cached_fib(50)) # extremly slow
+print(m.fib(50))  # very fast
+print(m.non_cached_fib(50))  # extremly slow
+
 
 class User:
     def __init__(self, user):
         self.user = user
 
+
 class UserFormat(User):
     def format_user(self):
         return f"{self.user['id']}: {self.user['name']}"
+
 
 class UserSave(User):
     def save(self, content: str, path: str):
         with open(path, "w") as f:
             f.write(content)
+
 
 class UserSend(User):
     def send(self, content: str, addr: str):
@@ -59,7 +67,7 @@ class UserSend(User):
 
 class ExportOrderCSV:
     def export(self, content: str):
-        return content.replace(" - ", ",") 
+        return content.replace(" - ", ",")
 
 
 class ExportOrderJSON:
@@ -70,10 +78,12 @@ class ExportOrderJSON:
             id_, total = line.split(" - ")
             items.append({"id": id_, "total": total})
         import json
+
         return json.dumps(items)
 
 
 from abc import ABC, abstractmethod
+
 
 class ShippingStrategy(ABC):
     @abstractmethod
@@ -94,10 +104,12 @@ class ShippingCostGround(ShippingStrategy):
 class File(ABC):
     pass
 
+
 class Readable(ABC):
     @abstractmethod
     def read(self):
         pass
+
 
 class Writable(ABC):
     @abstractmethod
@@ -109,23 +121,27 @@ class FileWriter(Writable):
     def write(self, data: str):
         print(f"Writing in file {data}")
 
+
 class ReadOnlyFile(Readable):
     def read(self):
         print("Reading file")
 
 
-class Bird(ABC): 
+class Bird(ABC):
     pass
+
 
 class FlyingBird(Bird):
     @abstractmethod
     def fly(self):
         pass
 
+
 class WalkingBird(Bird):
     @abstractmethod
     def walk(self):
         pass
+
 
 class Penguin(WalkingBird):
     def walk(self):
@@ -137,8 +153,10 @@ class Payment(ABC):
     def pay(self, amount):
         pass
 
+
 class CryptoPayment(Payment):
     pass
+
 
 class BinancePayment(CryptoPayment):
     def pay(self, amount):
@@ -171,7 +189,6 @@ class UserRepository:
         self.db = db
 
 
-
 class Notifier(ABC):
     @abstractmethod
     def send(self, message: str):
@@ -191,7 +208,6 @@ class EmailNotifier(Notifier):
 class PaymentService:
     def process(self, notifier: Notifier):
         notifier.send("ok")
-
 
 
 class Logger(ABC):

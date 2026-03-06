@@ -5,6 +5,9 @@ ENV/
 env/
 .venv/
 
+# backups created by cleanup script
+_venv_backups/
+
 # Кэш Python
 **/__pycache__/
 *.py[cod]

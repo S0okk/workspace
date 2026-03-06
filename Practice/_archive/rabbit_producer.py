@@ -6,8 +6,8 @@ connection_params = pika.ConnectionParameters(
     port=5672,  # Порт по умолчанию для RabbitMQ
     virtual_host="/",  # Виртуальный хост (обычно '/')
     credentials=pika.PlainCredentials(
-        username="guest",  # Имя пользователя по умолчанию
-        password="guest",  # Пароль по умолчанию
+        username="admin",  # Имя пользователя по умолчанию
+        password="admin",  # Пароль по умолчанию
     ),
 )
 
@@ -21,9 +21,7 @@ channel = connection.channel()
 queue_name = "hello"
 
 # Отправка сообщения
-channel.queue_declare(
-    queue=queue_name, durable=True
-)  # Создание очереди (если не существует)
+channel.queue_declare(queue=queue_name)  # Создание очереди (если не существует)
 
 message = "Hello, RabbitMQ!"
 channel.basic_publish(exchange="", routing_key=queue_name, body=message)

@@ -1,13 +1,14 @@
 import time
 from datetime import datetime
+
 import psycopg2
 
 db_config = {
-    'dbname': 'new_db',
-    'user': 'postgres',
-    'password': 'Yudacha30121981',
-    'host': 'localhost',
-    'port': '5432'
+    "dbname": "new_db",
+    "user": "postgres",
+    "password": "Yudacha30121981",
+    "host": "localhost",
+    "port": "5432",
 }
 
 
@@ -34,7 +35,15 @@ class Scheduler:
             INSERT INTO scheduled_notifications (user_id, message, send_at, status)
             VALUES (%s, %s, %s, %s)
         """
-        cur.execute(sql, (notification.user_id, notification.message, notification.send_at, 'pending'))
+        cur.execute(
+            sql,
+            (
+                notification.user_id,
+                notification.message,
+                notification.send_at,
+                "pending",
+            ),
+        )
 
         conn.commit()
         cur.close()
@@ -45,43 +54,46 @@ class Scheduler:
         cur = conn.cursor()
         now = datetime.now()
 
-        cur.execute("""
+        cur.execute(
+            """
             SELECT id, message, send_at
             FROM scheduled_notifications
             WHERE status = 'pending'
             AND send_at <= %s
-        """, (now,))
+        """,
+            (now,),
+        )
 
         notifications = cur.fetchall()
 
         for notif in notifications:
             notif_id, message, send_at = notif
-            print(f"🔔 Выполняется уведомление #{notif_id}: {message} (время {send_at})")
+            print(
+                f"🔔 Выполняется уведомление #{notif_id}: {message} (время {send_at})"
+            )
 
-            cur.execute("""
+            cur.execute(
+                """
                 UPDATE scheduled_notifications
                 SET status = 'sent'
                 WHERE id = %s
-            """, (notif_id,))
+            """,
+                (notif_id,),
+            )
 
         conn.commit()
         cur.close()
         conn.close()
 
     def send_notification(self) -> list:
-        current_time = time.strftime('%Y-%m-%d %H:%M:%S')
-        must_be_sent = [
-            n for n in self.notifications
-            if n.send_at <= current_time
-        ]
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        must_be_sent = [n for n in self.notifications if n.send_at <= current_time]
         return must_be_sent
 
 
 # --- пример использования ---
 notification = Notification(
-    user_id='254',
-    message='Hello beginner',
-    send_at='2025-11-8 14:19:39'
+    user_id="254", message="Hello beginner", send_at="2025-11-8 14:19:39"
 )
 
 scheduler = Scheduler()
